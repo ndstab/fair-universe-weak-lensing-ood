@@ -12,6 +12,7 @@ data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+public_data/
 artifacts/*
 !artifacts/.gitkeep
 submissions/*

@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Research pipeline for the FAIR Universe Weak Lensing Phase-2 OoD challenge"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+  "matplotlib==3.11.1",
   "numpy==2.3.3",
   "scikit-learn==1.8.0",
 ]
