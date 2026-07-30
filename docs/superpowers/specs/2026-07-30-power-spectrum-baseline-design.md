@@ -204,7 +204,9 @@ transitive dependency.
 
 For a map with feature vector `d`, minimize the negative Gaussian log
 likelihood with SciPy Nelder-Mead starting at `(0.3, 0.8)`, matching the
-organizer notebook.
+organizer notebook. Set both `maxfev` and `maxiter` to `4,000`; the organizer's
+default budget can stop before convergence for maps whose optimum lies near the
+interpolation boundary.
 
 The objective includes:
 

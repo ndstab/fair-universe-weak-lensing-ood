@@ -2,7 +2,9 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+from scipy.optimize import OptimizeResult
 
+import wl_ood.ps_model as ps_model_module
 from wl_ood.ps_model import PowerSpectrumModel, fit_moments
 
 
@@ -52,6 +54,35 @@ def test_score_one_returns_finite_best_fit() -> None:
     assert result.chi_squared == pytest.approx(0.0, abs=1e-8)
     assert np.isfinite(result.objective)
     assert result.evaluations > 0
+
+
+def test_score_one_provides_extended_nelder_mead_budget(monkeypatch) -> None:
+    def budget_sensitive_optimizer(
+        function,
+        x0,
+        *,
+        method,
+        options=None,
+    ) -> OptimizeResult:
+        enough_budget = (
+            options is not None
+            and options.get("maxfev", 0) >= 4_000
+            and options.get("maxiter", 0) >= 4_000
+        )
+        return OptimizeResult(
+            x=np.asarray(x0),
+            success=enough_budget,
+            message=(
+                "Optimization terminated successfully."
+                if enough_budget
+                else "Maximum number of function evaluations has been exceeded."
+            ),
+            nfev=754 if enough_budget else 400,
+        )
+
+    monkeypatch.setattr(ps_model_module, "minimize", budget_sensitive_optimizer)
+    result = gaussian_model().score_one(np.array([0.3, 0.8]))
+    assert result.evaluations == 754
 
 
 def test_model_round_trip(tmp_path: Path) -> None:

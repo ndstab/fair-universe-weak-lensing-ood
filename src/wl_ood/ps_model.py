@@ -151,6 +151,7 @@ class PowerSpectrumModel:
             ),
             x0=np.array([0.3, 0.8]),
             method="Nelder-Mead",
+            options={"maxfev": 4_000, "maxiter": 4_000},
         )
         if not result.success:
             raise RuntimeError(f"MAP optimization failed: {result.message}")
