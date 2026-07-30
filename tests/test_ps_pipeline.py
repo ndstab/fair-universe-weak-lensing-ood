@@ -1,4 +1,7 @@
+import json
 from pathlib import Path
+from types import SimpleNamespace
+import zipfile
 
 import numpy as np
 import pytest
@@ -11,6 +14,8 @@ from wl_ood.ps_pipeline import (
     benchmark_features,
     extract_test_features,
     extract_training_features,
+    run_full_baseline,
+    run_validation,
 )
 
 
@@ -77,3 +82,82 @@ def test_benchmark_is_deterministic(
     assert report["repeat_bitwise_equal"] is True
     assert report["maps_per_second"] > 0.0
     assert report["maps_benchmarked"] == 4
+
+
+@pytest.fixture
+def tiny_ps_run(
+    tiny_ps_dataset: CompetitionDataset,
+    tmp_path: Path,
+) -> SimpleNamespace:
+    config = tiny_ps_config()
+    run_dir = tmp_path / "run"
+    train_cache = FeatureCache.open(
+        run_dir,
+        "train",
+        (4, 15, config.n_bins),
+    )
+    test_cache = FeatureCache.open(
+        run_dir,
+        "test",
+        (3, config.n_bins),
+    )
+    extract_training_features(tiny_ps_dataset, train_cache, config)
+    extract_test_features(tiny_ps_dataset, test_cache, config)
+    return SimpleNamespace(
+        dataset=tiny_ps_dataset,
+        config=config,
+        run_dir=run_dir,
+        train_cache=train_cache,
+        test_cache=test_cache,
+    )
+
+
+def test_validation_uses_fixed_training_only_partitions(
+    tiny_ps_run: SimpleNamespace,
+) -> None:
+    report_path = run_validation(
+        tiny_ps_run.dataset,
+        tiny_ps_run.train_cache,
+        tiny_ps_run.run_dir,
+        tiny_ps_run.config,
+    )
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    assert report["split"]["fit_residues"] == [2, 3, 4]
+    assert report["split"]["calibration_residue"] == 1
+    assert report["split"]["validation_residue"] == 0
+    assert report["optimizer_failures"] == 0
+    assert report["counts"] == {
+        "fit": 36,
+        "calibration": 12,
+        "validation": 12,
+    }
+
+
+def test_full_run_creates_ordered_finite_submission(
+    tiny_ps_run: SimpleNamespace,
+) -> None:
+    output = run_full_baseline(
+        tiny_ps_run.dataset,
+        tiny_ps_run.train_cache,
+        tiny_ps_run.test_cache,
+        tiny_ps_run.run_dir,
+        tiny_ps_run.config,
+        submission_path=tiny_ps_run.run_dir / "submission.zip",
+        expected_test_count=3,
+    )
+    with zipfile.ZipFile(output) as archive:
+        scores = np.asarray(
+            json.loads(archive.read("result.json"))["ood_scores"],
+        )
+    assert scores.shape == (3,)
+    assert np.all(np.isfinite(scores))
+    assert np.all(scores >= 0.0)
+    assert np.unique(scores).size > 1
+
+    manifest = json.loads(
+        (tiny_ps_run.run_dir / "run-manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["score_count"] == 3
+    assert manifest["scores_all_finite"] is True
+    assert manifest["scores_non_constant"] is True
+    assert "score_mean" not in manifest
