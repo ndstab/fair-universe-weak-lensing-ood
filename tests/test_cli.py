@@ -7,6 +7,13 @@ import pytest
 from tests.test_audit import TINY_SCHEMA
 from tests.test_data import write_tiny_dataset
 from wl_ood.cli import main
+from wl_ood.data import (
+    LABELS_FILENAME,
+    MASK_FILENAME,
+    TEST_FILENAME,
+    TRAINING_FILENAME,
+)
+from wl_ood.ps_config import PowerSpectrumConfig
 
 
 def test_make_dummy_is_reproducible(tmp_path, capsys) -> None:
@@ -110,3 +117,99 @@ def test_preview_data_command(tmp_path, capsys) -> None:
     ) == 0
     assert len(list(output_dir.glob("*.png"))) == 5
     assert "5 previews" in capsys.readouterr().out
+
+
+def write_tiny_ps_dataset(root) -> None:
+    rng = np.random.default_rng(2026)
+    np.save(root / MASK_FILENAME, np.ones((8, 8), dtype=bool))
+    np.save(
+        root / TRAINING_FILENAME,
+        rng.normal(size=(4, 15, 64)).astype(np.float64),
+    )
+    np.save(
+        root / TEST_FILENAME,
+        rng.normal(size=(3, 64)).astype(np.float64),
+    )
+    labels = np.zeros((4, 15, 5), dtype=np.float64)
+    labels[:, :, :2] = np.array(
+        [[0.2, 0.7], [0.2, 0.9], [0.4, 0.7], [0.4, 0.9]],
+    )[:, None, :]
+    np.save(root / LABELS_FILENAME, labels)
+
+
+def tiny_cli_ps_config() -> PowerSpectrumConfig:
+    return PowerSpectrumConfig(
+        seed=17,
+        pixel_size_arcmin=60.0 * 180.0 / np.pi,
+        ell_min=0.5,
+        ell_max=4.0,
+        n_bins=3,
+    )
+
+
+def test_benchmark_ps_baseline_command(tmp_path, capsys) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    write_tiny_ps_dataset(data_dir)
+    run_dir = tmp_path / "run"
+
+    assert main(
+        [
+            "benchmark-ps-baseline",
+            "--data-dir",
+            str(data_dir),
+            "--run-dir",
+            str(run_dir),
+            "--seed",
+            "17",
+        ],
+        ps_config=tiny_cli_ps_config(),
+        ps_benchmark_count=2,
+    ) == 0
+
+    assert (run_dir / "benchmark.json").is_file()
+    assert "benchmark" in capsys.readouterr().out.lower()
+
+
+def test_validate_and_run_ps_baseline_commands(tmp_path, capsys) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    write_tiny_ps_dataset(data_dir)
+    run_dir = tmp_path / "run"
+    config = tiny_cli_ps_config()
+
+    assert main(
+        [
+            "validate-ps-baseline",
+            "--data-dir",
+            str(data_dir),
+            "--run-dir",
+            str(run_dir),
+            "--seed",
+            "17",
+        ],
+        ps_config=config,
+    ) == 0
+    submission = tmp_path / "baseline.zip"
+    assert main(
+        [
+            "run-ps-baseline",
+            "--data-dir",
+            str(data_dir),
+            "--run-dir",
+            str(run_dir),
+            "--seed",
+            "17",
+            "--submission",
+            str(submission),
+        ],
+        ps_config=config,
+        ps_expected_test_count=3,
+    ) == 0
+
+    assert (run_dir / "validation-report.json").is_file()
+    assert (run_dir / "run-manifest.json").is_file()
+    assert submission.is_file()
+    output = capsys.readouterr().out.lower()
+    assert "validation" in output
+    assert "submission" in output
