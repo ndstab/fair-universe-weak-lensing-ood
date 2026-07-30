@@ -4,6 +4,8 @@ import zipfile
 import numpy as np
 import pytest
 
+from tests.test_audit import TINY_SCHEMA
+from tests.test_data import write_tiny_dataset
 from wl_ood.cli import main
 
 
@@ -67,3 +69,44 @@ def test_make_dummy_zip_has_expected_schema(tmp_path) -> None:
 
     assert len(payload["ood_scores"]) == 10_000
     assert np.all(np.isfinite(payload["ood_scores"]))
+
+
+def test_audit_data_command(tmp_path, capsys) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    write_tiny_dataset(data_dir)
+    output = tmp_path / "audit.json"
+    assert main(
+        [
+            "audit-data",
+            "--data-dir",
+            str(data_dir),
+            "--output",
+            str(output),
+            "--chunk-rows",
+            "2",
+        ],
+        schema=TINY_SCHEMA,
+    ) == 0
+    assert output.is_file()
+    assert "Audit passed" in capsys.readouterr().out
+
+
+def test_preview_data_command(tmp_path, capsys) -> None:
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    write_tiny_dataset(data_dir)
+    output_dir = tmp_path / "previews"
+    assert main(
+        [
+            "preview-data",
+            "--data-dir",
+            str(data_dir),
+            "--output-dir",
+            str(output_dir),
+        ],
+        preview_training_indices=((0, 0), (1, 2)),
+        preview_test_indices=(0, 3),
+    ) == 0
+    assert len(list(output_dir.glob("*.png"))) == 5
+    assert "5 previews" in capsys.readouterr().out

@@ -8,8 +8,9 @@ FAIR Universe Weak Lensing ML Uncertainty Challenge.
 
 ## Current milestone
 
-The initial package reproduces the public scoring formula and creates clean,
-deterministic result-submission archives. It does not yet train an OoD model.
+The package reproduces the public scoring formula, creates deterministic
+result-submission archives, and audits the local competition arrays without
+loading them fully into memory. It does not yet train an OoD model.
 
 ## Environment
 
@@ -37,6 +38,35 @@ Our model code runs locally; only `result.json` is submitted.
 ```
 
 Dummy scores test file formatting only and are not a scientific method.
+
+## Competition data
+
+Place the four organizer-provided `.npy` files in `public_data/`. This directory
+is ignored by Git.
+
+Although the documented sky grid is `1424 × 176`, each stored map contains only
+the 132,019 valid mask pixels. The loader reconstructs individual full maps
+using the boolean survey mask and never loads the complete training or test
+arrays into RAM.
+
+Run the structural audit:
+
+```bash
+.venv/bin/wl-ood audit-data \
+  --data-dir public_data \
+  --output artifacts/data-audit.json
+```
+
+Create the fixed individual-map previews:
+
+```bash
+.venv/bin/wl-ood preview-data \
+  --data-dir public_data \
+  --output-dir artifacts/previews
+```
+
+The audit verifies test structure and finiteness but deliberately does not
+calculate test-wide distribution statistics.
 
 ## Research rules
 
