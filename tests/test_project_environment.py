@@ -1,4 +1,4 @@
-from importlib.metadata import PackageNotFoundError, version
+from importlib.metadata import PackageNotFoundError, requires, version
 from pathlib import Path
 import subprocess
 
@@ -19,3 +19,12 @@ def test_matplotlib_runtime_version_is_pinned() -> None:
         installed_version = None
 
     assert installed_version == "3.11.1"
+
+
+def test_scipy_runtime_version_is_pinned() -> None:
+    assert version("scipy") == "1.18.0"
+
+
+def test_scipy_is_a_direct_runtime_dependency() -> None:
+    project_requirements = requires("fair-universe-wl-ood") or []
+    assert "scipy==1.18.0" in project_requirements
