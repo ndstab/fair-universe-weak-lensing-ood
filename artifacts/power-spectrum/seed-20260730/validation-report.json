@@ -1,0 +1,74 @@
+{
+  "config": {
+    "algorithm_version": "ps-baseline-v1",
+    "ell_edges": [
+      100.0,
+      158.48931924611142,
+      251.18864315095797,
+      398.1071705534973,
+      630.957344480193,
+      1000.0,
+      1584.893192461114,
+      2511.886431509582,
+      3981.0717055349733,
+      6309.57344480193,
+      10000.0
+    ],
+    "ell_max": 10000.0,
+    "ell_min": 100.0,
+    "feature_dtype": "float64",
+    "galaxy_density": 30.0,
+    "n_bins": 10,
+    "noise_namespace": 1,
+    "pixel_size_arcmin": 2.0,
+    "pixel_size_radian": 0.0005817764173314432,
+    "seed": 20260730
+  },
+  "counts": {
+    "calibration": 5151,
+    "fit": 15453,
+    "validation": 5252
+  },
+  "covariance": {
+    "maximum_condition_number": 4070.125669390005,
+    "minimum_cholesky_diagonal": 0.002857217990527163
+  },
+  "false_positive_rates": {
+    "0.001": 0.000952018278750952,
+    "0.005": 0.003808073115003808,
+    "0.01": 0.010472201066260471,
+    "0.05": 0.0594059405940594
+  },
+  "finite_score_count": 10403,
+  "function_evaluations": 773634,
+  "optimizer_failures": 0,
+  "runtime_seconds": 17.139233666006476,
+  "schema_version": 1,
+  "score_ranges": {
+    "calibration": [
+      0.7163763156820738,
+      87.12162941584809
+    ],
+    "validation": [
+      0.41817395024377374,
+      104.2699814154505
+    ]
+  },
+  "split": {
+    "calibration_residue": 1,
+    "fit_residues": [
+      2,
+      3,
+      4
+    ],
+    "modulus": 5,
+    "validation_residue": 0
+  },
+  "thresholds": {
+    "0.001": 55.35374997527806,
+    "0.005": 44.78539246801814,
+    "0.01": 36.57631536468169,
+    "0.05": 20.546121854133837
+  },
+  "uses_public_test_statistics": false
+}

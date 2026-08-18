@@ -1,0 +1,70 @@
+{
+  "baseline": {
+    "algorithm_version": "ps-baseline-v1",
+    "ell_edges": [
+      100.0,
+      158.48931924611142,
+      251.18864315095797,
+      398.1071705534973,
+      630.957344480193,
+      1000.0,
+      1584.893192461114,
+      2511.886431509582,
+      3981.0717055349733,
+      6309.57344480193,
+      10000.0
+    ],
+    "ell_max": 10000.0,
+    "ell_min": 100.0,
+    "feature_dtype": "float64",
+    "galaxy_density": 30.0,
+    "n_bins": 10,
+    "noise_namespace": 1,
+    "pixel_size_arcmin": 2.0,
+    "pixel_size_radian": 0.0005817764173314432,
+    "seed": 20260730
+  },
+  "dataset": {
+    "labels": {
+      "name": "label_newrealization.npy",
+      "sha256": "fd144017be3d50adc29a8665ef59341802f7acad58387f8ae68e30ad29fae8ff",
+      "size_bytes": 1034368
+    },
+    "mask": {
+      "name": "WIDE12H_bin2_2arcmin_mask.npy",
+      "sha256": "ffe44ff93ad3122488fb18882dd457f337dc90c4e31306f50c4bb77aa8822da6",
+      "size_bytes": 250752
+    },
+    "test": {
+      "name": "WIDE12H_bin2_2arcmin_kappa_test_phase2_new.npy",
+      "sha256": "d8d91680709ce8a9abd907e4b2cfdb752f55cf5acd13f819386458d4f34bb82f",
+      "size_bytes": 10561520128
+    },
+    "training": {
+      "name": "WIDE12H_bin2_2arcmin_kappa_newrealization.npy",
+      "sha256": "f3f9f75e5aaf72e70ff9a486e165d57969e1fe2095bfe90dc4983879110bdcbd",
+      "size_bytes": 6826966656
+    }
+  },
+  "shapes": {
+    "labels": [
+      101,
+      256,
+      5
+    ],
+    "mask": [
+      1424,
+      176
+    ],
+    "test": [
+      10000,
+      132019
+    ],
+    "training": [
+      101,
+      256,
+      132019
+    ]
+  },
+  "valid_pixels": 132019
+}

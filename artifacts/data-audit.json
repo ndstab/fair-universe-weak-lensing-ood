@@ -1,0 +1,70 @@
+{
+  "arrays": {
+    "labels": {
+      "dtype": "float64",
+      "shape": [
+        101,
+        256,
+        5
+      ]
+    },
+    "mask": {
+      "dtype": "bool",
+      "shape": [
+        1424,
+        176
+      ]
+    },
+    "test": {
+      "dtype": "float64",
+      "shape": [
+        10000,
+        132019
+      ]
+    },
+    "training": {
+      "dtype": "float16",
+      "shape": [
+        101,
+        256,
+        132019
+      ]
+    }
+  },
+  "files": {
+    "labels": {
+      "name": "label_newrealization.npy",
+      "sha256": "fd144017be3d50adc29a8665ef59341802f7acad58387f8ae68e30ad29fae8ff",
+      "size_bytes": 1034368
+    },
+    "mask": {
+      "name": "WIDE12H_bin2_2arcmin_mask.npy",
+      "sha256": "ffe44ff93ad3122488fb18882dd457f337dc90c4e31306f50c4bb77aa8822da6",
+      "size_bytes": 250752
+    },
+    "test": {
+      "name": "WIDE12H_bin2_2arcmin_kappa_test_phase2_new.npy",
+      "sha256": "d8d91680709ce8a9abd907e4b2cfdb752f55cf5acd13f819386458d4f34bb82f",
+      "size_bytes": 10561520128
+    },
+    "training": {
+      "name": "WIDE12H_bin2_2arcmin_kappa_newrealization.npy",
+      "sha256": "f3f9f75e5aaf72e70ff9a486e165d57969e1fe2095bfe90dc4983879110bdcbd",
+      "size_bytes": 6826966656
+    }
+  },
+  "labels": {
+    "all_finite": true,
+    "cosmology_constant_per_group": true,
+    "unique_cosmologies": 101
+  },
+  "mask": {
+    "masked_pixels": 118605,
+    "valid_pixels": 132019
+  },
+  "non_finite_counts": {
+    "test": 0,
+    "training": 0
+  },
+  "schema_version": 1
+}
